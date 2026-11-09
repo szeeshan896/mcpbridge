@@ -101,6 +101,7 @@ For the CLIs the bridge knows, that becomes the CLI's own flags:
 | codex | `--sandbox workspace-write` (one setting for both) | same | — |
 | grok | `--always-approve` (all or nothing) | same | — |
 | gemini | `--approval-mode auto_edit` | `--approval-mode yolo` | `GEMINI_CLI_TRUST_WORKSPACE=true` |
+| agy (Antigravity) | `--mode accept-edits` | `--dangerously-skip-permissions` (allows edits too) | — |
 
 Any app connected to your relay can ask that agent for work, so allow only what you are
 happy for those apps to have done on your computer. A CLI the bridge does not know gets no

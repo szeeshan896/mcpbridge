@@ -48,6 +48,9 @@ test('each known CLI gets its own flags for what its owner allowed, and nothing 
   assert.deepEqual(permissionsFor({ command: ['C:\\tools\\codex.exe', 'exec', '{prompt}'], allow: { edits: true } }).args, ['--sandbox', 'workspace-write']);
   assert.equal(permissionsFor({ command: cmd('codex'), allow: { edits: true } }).runsCommands, true, 'one sandbox setting covers both');
   assert.deepEqual(permissionsFor({ command: cmd('grok'), allow: { commands: true } }).args, ['--always-approve']);
+  assert.deepEqual(permissionsFor({ command: ['agy', '-p', '{prompt}'], allow: { edits: true } }).args, ['--mode', 'accept-edits']);
+  assert.equal(permissionsFor({ command: ['agy.exe', '-p', '{prompt}'], allow: { edits: true } }).runsCommands, false);
+  assert.deepEqual(permissionsFor({ command: ['agy', '-p', '{prompt}'], allow: { commands: true } }).args, ['--dangerously-skip-permissions']);
   assert.deepEqual(permissionsFor({ command: cmd('gemini'), allow: { edits: true } }).args, ['--approval-mode', 'auto_edit']);
   assert.deepEqual(permissionsFor({ command: cmd('gemini'), allow: { commands: true, trustDirectory: true } }),
     { args: ['--approval-mode', 'yolo'], env: { GEMINI_CLI_TRUST_WORKSPACE: 'true' }, writesFiles: true, runsCommands: true,

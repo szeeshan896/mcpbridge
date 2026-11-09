@@ -6,7 +6,7 @@ import type { CliAgentConfig } from '../config.js';
  * What a coding CLI may do when it runs unattended, and the flags that grant it.
  *
  * <p>Every one of these CLIs is cautious by default when there is no person to approve a
- * step: Codex runs in a read-only sandbox, Claude Code denies edits and shell commands it
+ * step: Codex runs in a read-only sandbox, Antigravity asks before each tool, Claude Code denies edits and shell commands it
  * was not pre-approved for, Grok Build and Gemini CLI stop at their approval prompts. That
  * is the right default for a bridge any connected client can call -- but a second field
  * report showed the cost of leaving it unsaid: five detailed briefs asking agents to write
@@ -38,12 +38,12 @@ export interface Permissions {
   note: string;
 }
 
-type Known = 'claude' | 'codex' | 'grok' | 'gemini';
+type Known = 'claude' | 'codex' | 'grok' | 'gemini' | 'agy';
 
 /** The CLI a command runs, by executable name, whatever path or extension it has. */
 export function knownCli(executable: string): Known | null {
   const name = basename(executable.replace(/\\/g, '/')).toLowerCase().replace(/\.(exe|cmd|bat|ps1)$/, '');
-  return name === 'claude' || name === 'codex' || name === 'grok' || name === 'gemini' ? name : null;
+  return name === 'claude' || name === 'codex' || name === 'grok' || name === 'gemini' || name === 'agy' ? name : null;
 }
 
 export function permissionsFor(config: CliAgentConfig): Permissions {
@@ -88,6 +88,16 @@ export function permissionsFor(config: CliAgentConfig): Permissions {
         writesFiles: mode !== null, runsCommands: mode === 'yolo',
         supports: { edits: true, commands: true, trustDirectory: true },
         note: 'Allowing commands also allows edits for Gemini CLI.',
+      };
+    }
+    case 'agy': {
+      // Antigravity: accept-edits mode approves file changes only; skipping permissions
+      // approves every tool, commands included
+      const args = allow.commands ? ['--dangerously-skip-permissions'] : allow.edits ? ['--mode', 'accept-edits'] : [];
+      return {
+        args, env: {}, writesFiles: args.length > 0, runsCommands: Boolean(allow.commands),
+        supports: { edits: true, commands: true, trustDirectory: false },
+        note: 'Allowing commands also allows edits for Antigravity.',
       };
     }
     default:
