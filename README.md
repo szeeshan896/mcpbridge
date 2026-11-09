@@ -4,7 +4,7 @@
 
 **Let any AI app hand work to the AI tools on your own computer.**
 
-[![npm](https://img.shields.io/npm/v/@mcpbridge/cli?color=4f6bed)](https://www.npmjs.com/package/@mcpbridge/cli)
+[![npm](https://img.shields.io/npm/v/@mcpbridgeapp/cli?color=4f6bed)](https://www.npmjs.com/package/@mcpbridgeapp/cli)
 [![CI](https://github.com/szeeshan896/mcpbridge/actions/workflows/ci.yml/badge.svg)](https://github.com/szeeshan896/mcpbridge/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -46,7 +46,7 @@ tools are installed. Check with `node --version`.
 2. **Start the control panel** on your computer:
 
    ```bash
-   npx -y @mcpbridge/cli ui
+   npx -y @mcpbridgeapp/cli ui
    ```
 
    It opens in your browser. Paste the agent token under **Relay connection**, then press
@@ -68,10 +68,10 @@ You don't need an account or the relay. Claude Code starts mcpbridge itself:
 
 ```bash
 # macOS / Linux
-claude mcp add -s user mcpbridge -- npx -y @mcpbridge/cli
+claude mcp add -s user mcpbridge -- npx -y @mcpbridgeapp/cli
 
 # Windows (PowerShell or cmd)
-claude mcp add -s user mcpbridge -- cmd /c npx -y @mcpbridge/cli
+claude mcp add -s user mcpbridge -- cmd /c npx -y @mcpbridgeapp/cli
 ```
 
 Then, in Claude Code: *"ask gemini through mcpbridge to review the caching layer in this
@@ -82,7 +82,7 @@ module"*. `-s user` makes it available in every folder, not just the current one
 `npx` fetches the latest version each time. To install once instead:
 
 ```bash
-npm install -g @mcpbridge/cli
+npm install -g @mcpbridgeapp/cli
 mcpbridge ui              # the control panel
 mcpbridge --agents        # which agents are ready on this computer
 ```
@@ -112,7 +112,7 @@ limitation: the work happens where your logins are, which is why the server need
 ## The control panel
 
 ```bash
-npx -y @mcpbridge/cli ui        # or: mcpbridge ui
+npx -y @mcpbridgeapp/cli ui        # or: mcpbridge ui
 ```
 
 <img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/control-panel.png" alt="The mcpbridge control panel: relay connection Online as my-laptop, and a list of agents (antigravity, claude, codex, deepseek, gemini, grok, an NVIDIA model, ollama), each ready, with Test, Edit and Customise buttons" width="100%">
@@ -163,7 +163,7 @@ Anything not installed is listed as unavailable, never silently broken. Check fr
 terminal:
 
 ```bash
-npx -y @mcpbridge/cli --agents
+npx -y @mcpbridgeapp/cli --agents
 ```
 
 ```

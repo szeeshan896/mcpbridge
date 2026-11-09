@@ -35,7 +35,7 @@ Open http://localhost:8080, create an account, generate both tokens, then on the
 machine:
 
 ```bash
-npx -y @mcpbridge/cli connect --relay http://localhost:8080 --token mba_...
+npx -y @mcpbridgeapp/cli connect --relay http://localhost:8080 --token mba_...
 ```
 
 The dashboard flips to Online and lists the agents it found. The config snippets it shows
