@@ -174,7 +174,7 @@ test('pages: landing, dashboard needs a session, 2fa page needs a pending step',
   assert.equal(dash.status, 200);
   assert.match(dash.text, /\+919876543210/);
   assert.match(dash.text, /Offline/);
-  assert.match(dash.text, /mcpbridge connect --relay/);
+  assert.match(dash.text, /@mcpbridge\/cli connect --relay/);
   assert.equal((await call(base, jar, 'GET', '/')).status, 303, 'signed in users skip the landing page');
 
   const out = await call(base, jar, 'POST', '/logout');

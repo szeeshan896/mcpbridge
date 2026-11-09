@@ -253,10 +253,10 @@ function dashboardPage(me: Summary, base: string, googleEnabled: boolean): strin
        <pre id="codes" style="display:none"></pre></div>`;
 
   const snippets = `
-<h2>Connect your machine</h2><p class="muted">Run this where your AI CLIs are signed in. It stays running and reconnects on its own.</p>
-<pre>npx -y mcpbridge connect --relay ${esc(host)} --token <span data-fill="agent">&lt;agent token&gt;</span></pre>
-<p class="muted">Or from a clone of the repository (<code>git clone https://github.com/szeeshan896/mcpbridge.git</code>, then <code>npm install</code> in it):</p>
-<pre>node dist/index.js connect --relay ${esc(host)} --token <span data-fill="agent">&lt;agent token&gt;</span></pre>
+<h2>Connect your machine</h2><p class="muted">On the computer where your AI CLIs are signed in (needs Node 22 or newer). The easy way is the control panel: it opens in your browser, where you paste the agent token once and add agents and keys without a terminal.</p>
+<pre>npx -y @mcpbridge/cli ui</pre>
+<p class="muted">Or straight from a terminal. It stays running and reconnects on its own:</p>
+<pre>npx -y @mcpbridge/cli connect --relay ${esc(host)} --token <span data-fill="agent">&lt;agent token&gt;</span></pre>
 <h2>Connect claude.ai — web, desktop app and phone</h2>
 <p class="muted">No token to paste: claude.ai signs in here and asks you to allow it.</p>
 <ol>

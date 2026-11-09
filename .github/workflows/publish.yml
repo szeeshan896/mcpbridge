@@ -1,0 +1,28 @@
+name: Publish to npm
+
+# Push a tag such as v0.2.0 (matching package.json's version) to publish that version.
+# Needs an npm automation token in the repository secret NPM_TOKEN.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write # lets npm record where the package was built (provenance)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Tag matches package.json
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - run: npm ci
+      - run: npm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

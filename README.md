@@ -1,489 +1,346 @@
-# MCP Bridge
+<div align="center">
 
+# mcpbridge
+
+**Let any AI app hand work to the AI tools on your own computer.**
+
+[![npm](https://img.shields.io/npm/v/@mcpbridge/cli?color=4f6bed)](https://www.npmjs.com/package/@mcpbridge/cli)
 [![CI](https://github.com/szeeshan896/mcpbridge/actions/workflows/ci.yml/badge.svg)](https://github.com/szeeshan896/mcpbridge/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Delegate work to another AI agent from inside the one you are already in.
+[Quick start](#quick-start) · [How it works](#how-it-works) · [Control panel](#the-control-panel) · [Agents](#agents-you-can-use) · [Safety](#safety) · [Reference](#reference)
 
-```bash
-claude mcp add mcpbridge -- npx -y mcpbridge
-```
+</div>
 
-That is the whole setup, once this is on npm. Until then, install from a clone — see
-**Installing** below. Now, while you are coding in Claude Code:
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/how-it-works.png" alt="AI apps such as claude.ai, ChatGPT and Claude Code send a task to the mcpbridge.app relay, which forwards it to your computer, where mcpbridge runs Claude Code, Codex, Grok, Antigravity, DeepSeek, NVIDIA or Ollama and sends the answer back" width="100%">
 
-> ask gemini through mcpbridge to review the caching layer in this module
+You are chatting with Claude on your phone. Your laptop at home has Codex, Claude Code and
+Grok signed in, each on a plan you already pay for. With mcpbridge you can say:
 
-Claude calls `ask_agent`, the bridge runs Gemini, and the answer comes back into your
-conversation. **One call, work done.** No mailbox to check, nothing to nudge.
+> Ask codex through mcpbridge to review `payment.ts` in my shop project.
 
-## No API keys
+Claude passes the task to your laptop. Codex runs there, reads the real files, and its
+review comes back into the same chat. **One message, work done.**
 
-The bridge never calls a model API. It drives the agent CLIs already installed and signed
-in on your machine, so each one uses **its own existing subscription** — and it can talk to
-a model running locally in Ollama, which needs no account at all.
+- **Use the plans you already pay for.** mcpbridge runs the AI command-line tools that are
+  signed in on your computer. No new subscription and no API key needed for them.
+- **No keys on any server.** Logins and API keys stay on your computer. The relay only
+  passes messages along, so a breach there leaks no AI credentials.
+- **Works from anywhere.** claude.ai on the web, the desktop app and your phone, ChatGPT,
+  Claude Code, Cursor, or any app that speaks [MCP](https://modelcontextprotocol.io).
+- **A second opinion on tap.** Have one AI check another's work, or pick the model best at
+  the task: a free NVIDIA coding model, DeepSeek, a local Ollama model that never touches
+  the internet.
+- **No terminal needed.** A control panel in your browser adds agents, keys and the
+  connection, and tests each agent with one click.
 
-```
-                                  ┌──→ claude -p "…"      your Claude subscription
-Claude Code ──MCP──→  mcpbridge ──┼──→ codex exec "…"     your Codex subscription
-Cursor      ──MCP──→              ├──→ gemini -p "…"      your Gemini subscription
-                                  └──→ Ollama (localhost) no account, no network
-```
+## Quick start
 
-It removes the key, not the quota: your subscription limits still apply.
+You need **[Node.js 22 or newer](https://nodejs.org)** on the computer where your AI
+tools are installed. Check with `node --version`.
 
-## Tools
+### A. From claude.ai, your phone, ChatGPT and other apps
 
-| Tool | What it does |
-|---|---|
-| `list_agents` | who can be delegated to, and whether each can be started |
-| `ask_agent` | hand one a task, wait, get the answer |
-| `start_task` | same, but returns an id immediately for work that outlasts the request |
-| `get_task` | check on a started task |
+1. **Create an account** at **[mcpbridge.app](https://mcpbridge.app)**. On the dashboard,
+   generate an **agent token**.
+2. **Start the control panel** on your computer:
 
-Every answer carries `notes` as well as `diagnostics`: `diagnostics` is why a call failed,
-`notes` is what you should know about one that succeeded — a directory that was ignored,
-tokens spent, an answer cut short at the model's output limit.
+   ```bash
+   npx -y @mcpbridge/cli ui
+   ```
 
-`ask_agent` is the normal path. The agent you delegate to starts fresh: it cannot see your
-conversation or your files, so write a self-contained prompt and pass `workingDirectory`
-whenever the task is about code. `timeoutSeconds` bounds one call; it can only shorten the
-agent's own timeout, which is five minutes unless configured.
+   It opens in your browser. Paste the agent token under **Relay connection**, then press
+   **Save & connect**. The panel turns **Online**. Keep that window open (you can minimise
+   it); while it runs, your agents are reachable.
+3. **Add the connector in claude.ai.** Open **Customize → Connectors → Add custom
+   connector**, name it `mcpbridge`, and use `https://mcpbridge.app/mcp` as the URL. Press
+   **Connect**, sign in, and press **Allow**. Nothing to paste. The same connector then
+   works in the Claude desktop app and on your phone.
+4. **Ask.** In any chat, switch the mcpbridge connector on (**+ → Connectors**) and say
+   *"list my mcpbridge agents"*, then *"ask codex to …"*.
 
-### What the fields promise
+The dashboard shows the exact setup lines for Claude Code, Claude Desktop and Cursor, with
+your own address filled in.
 
-- **`succeeded`** means the agent did the work as far as the bridge can tell — not merely
-  that its process exited 0. An agent that exits normally but says, in its own answer, that
-  it could not read or run anything (a broken hook blocking every tool call is the case
-  that prompted this) comes back `succeeded: false`, its explanation quoted in
-  `diagnostics` and kept in `output`. Errors a CLI printed while still exiting 0 land in
-  `notes`, with a warning to check the answer.
-- **`available`** is true only when the agent can be started *and* no recent call hit a
-  durable failure. **`status`** says which: `ready`, `unavailable` (not installed or not
-  configured), or what an earlier call ran into — `quota-exhausted`, `sign-in-failed`,
-  `directory-not-trusted` — with `lastError`, `lastErrorAt` and, when the agent named one,
-  `retryAt`. A quota failure is remembered for an hour, a sign-in one for six, and any
-  success clears it. `calls: 0` means the agent has not been tried: its command exists,
-  but whether its account works is unproven until the first call.
-- **`diagnostics`** is short: the caller's own prompt is removed when a CLI echoes it, a
-  repeated line appears once, and long output keeps the error lines ahead of the banner.
+### B. Only Claude Code, on the same computer
 
-- **`writesFiles`** and **`runsCommands`** say whether an agent may change files and run
-  commands such as tests. Both are off by default — every one of these CLIs is cautious
-  when nobody is there to approve a step: Codex runs in a read-only sandbox, Claude Code
-  denies edits and shell commands, Grok Build and Gemini CLI stop at their approval
-  prompts. A task that needs either belongs with an agent that has it; otherwise ask for a
-  reading and a report. An answer that is only an announcement ("I'll read payment.ts and
-  report…") with nothing after it — what an agent leaves when it stops at a step it was not
-  allowed to take — comes back as a failure that says so.
-- **`timeoutSeconds`** is how long one call may run. On a timeout, whatever the agent had
-  written by then comes back in `output`, marked incomplete.
-- **Tasks queue.** Only `maxConcurrent` delegations run at once (two by default).
-  `get_task` shows `queued` with a `queuePosition` while one waits — its timeout has not
-  started — then `running` with the latest output in `outputSoFar` and its time in
-  `lastOutputAt`, so a working agent and a stuck one no longer look the same. Several
-  tasks on one agent spend its account's quota together; once a call hits a usage limit or
-  a failed sign-in, the rest are not started until that clears, and say so at once.
-
-### Letting an agent edit files or run commands
-
-In the control panel, **Edit** (or **Customise** for a built-in) a CLI agent and tick what
-it may do; in `config.json` it is the agent's `allow`:
-
-```json
-"codex": { "command": ["codex", "exec", "{prompt}"], "allow": { "edits": true, "commands": true } }
-```
-
-For the CLIs the bridge knows, that becomes the CLI's own flags:
-
-| CLI | edits | commands | trust the directory |
-|---|---|---|---|
-| claude | `--permission-mode acceptEdits` | `--allowedTools Bash` | — |
-| codex | `--sandbox workspace-write` (one setting for both) | same | — |
-| grok | `--always-approve` (all or nothing) | same | — |
-| gemini | `--approval-mode auto_edit` | `--approval-mode yolo` | `GEMINI_CLI_TRUST_WORKSPACE=true` |
-| agy (Antigravity) | `--mode accept-edits` | `--dangerously-skip-permissions` (allows edits too) | — |
-
-Any app connected to your relay can ask that agent for work, so allow only what you are
-happy for those apps to have done on your computer. A CLI the bridge does not know gets no
-flags; put them in its `command` yourself and declare the result with
-`"capabilities": { "writesFiles": true, "runsCommands": true }`.
-
-The bridge does not mark directories as trusted on a CLI's behalf. Gemini CLI, for one,
-refuses an untrusted directory when unattended; the directory comes from whichever client
-made the call, so the diagnostic names the variable to set in that agent's `env` if you
-trust what your clients send it to, rather than setting it for you — or tick *Trust the
-working directory* for that agent in the control panel.
-
-## Check what you have
+You don't need an account or the relay. Claude Code starts mcpbridge itself:
 
 ```bash
-npx mcpbridge --agents
+# macOS / Linux
+claude mcp add -s user mcpbridge -- npx -y @mcpbridge/cli
+
+# Windows (PowerShell or cmd)
+claude mcp add -s user mcpbridge -- cmd /c npx -y @mcpbridge/cli
+```
+
+Then, in Claude Code: *"ask gemini through mcpbridge to review the caching layer in this
+module"*. `-s user` makes it available in every folder, not just the current one.
+
+### Install it for good (optional)
+
+`npx` fetches the latest version each time. To install once instead:
+
+```bash
+npm install -g @mcpbridge/cli
+mcpbridge ui              # the control panel
+mcpbridge --agents        # which agents are ready on this computer
+```
+
+## How it works
+
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/flow.png" alt="Sequence: claude.ai calls ask_agent on the relay; the relay forwards it to mcpbridge on your computer; mcpbridge runs codex in your folder; the answer is checked and returned the same way" width="100%">
+
+1. Your AI app calls mcpbridge's `ask_agent` tool. It names an agent (say `codex`), writes a
+   self-contained task, and can pass a folder on your computer.
+2. The relay at mcpbridge.app forwards the call over a WebSocket that **your computer**
+   opened. Nothing on your computer listens for connections, so no ports to open and no
+   firewall rules.
+3. mcpbridge looks the agent up in **your** configuration and runs it, e.g.
+   `codex exec "<task>"` in that folder. The task is passed as a single argument with no
+   shell involved, so text in a prompt can never become a command.
+4. The agent works the way it always does, signed in as you.
+5. mcpbridge **checks the answer** before calling it a success. An agent that exits normally
+   but only says *"I couldn't read the files"*, or stops after *"I'll start by reading
+   payment.ts"*, comes back as a failure that says why. A usage limit or an expired
+   sign-in is remembered, so the next call is told straight away instead of waiting.
+6. The answer travels back the same way into your chat.
+
+Close the laptop and the dashboard shows **offline**. That is the point, not a
+limitation: the work happens where your logins are, which is why the server needs none.
+
+## The control panel
+
+```bash
+npx -y @mcpbridge/cli ui        # or: mcpbridge ui
+```
+
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/control-panel.png" alt="The mcpbridge control panel: relay connection Online as my-laptop, and a list of agents (antigravity, claude, codex, deepseek, gemini, grok, an NVIDIA model, ollama), each ready, with Test, Edit and Customise buttons" width="100%">
+
+A page on your own computer (`http://127.0.0.1:8809`) that does everything this README does
+with commands:
+
+- **Connect to the relay.** Paste the agent token once. The page keeps the computer online
+  while it is open, reconnects by itself the next time you open it, and sends a newly added
+  agent to the relay straight away.
+- **Add an agent from a preset.** NVIDIA (free tier), DeepSeek, Grok, OpenRouter, Groq,
+  Mistral, Ollama, or any OpenAI-compatible service or command-line tool. Paste the key,
+  press **List models**, pick one and save. To keep several models from one provider, tick
+  them under **Add several models at once**. Each becomes its own agent, named after its
+  model (`nvidia-qwen3-coder-480b`).
+- **Test** any agent with a one-word prompt and see the answer or the exact error.
+- **Allow edits or commands** per agent (see [Safety](#safety)).
+
+**On Windows**, if you cloned the repository, double-click `start-ui.cmd`. Put a shortcut to
+it on your desktop to start mcpbridge with one click.
+
+Keys and the agent token are saved in `~/.config/mcpbridge/secrets.json` on your computer.
+They are never written to `config.json` and never sent to the relay. The page answers only on
+127.0.0.1, and only to the browser that opened the link it printed.
+
+## The dashboard
+
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/dashboard.png" alt="The mcpbridge.app dashboard: your machine is Online as my-laptop, with each agent listed as available and what it may do" width="100%">
+
+[mcpbridge.app](https://mcpbridge.app) shows whether your computer is online and which agents
+it offers. It is also where you manage tokens, turn on 2-step verification, and see and
+disconnect the apps you have allowed.
+
+## Agents you can use
+
+| Agent | What it is | Needs |
+|---|---|---|
+| `claude` | Claude Code | `claude` installed and signed in |
+| `codex` | OpenAI Codex CLI | `codex` installed and signed in |
+| `grok` | Grok Build CLI | `grok` installed and signed in |
+| `antigravity` | Google's Antigravity CLI (`agy`), Gemini models | `agy` installed and signed in |
+| `gemini` | Gemini CLI | `gemini` installed and signed in |
+| `ollama` | a model running locally in [Ollama](https://ollama.com) | Ollama and one pulled model. No account, works offline |
+| anything else | DeepSeek, NVIDIA, xAI API, OpenRouter, Groq, Mistral, LM Studio, … | an API key, added in the control panel |
+
+The first six are built in: install the tool, sign in once in a terminal, and it shows up.
+Anything not installed is listed as unavailable, never silently broken. Check from a
+terminal:
+
+```bash
+npx -y @mcpbridge/cli --agents
 ```
 
 ```
 ✓ claude     claude found on PATH
-✗ codex      codex is not on PATH — install it or fix the command
+✓ codex      codex found on PATH
 ✗ gemini     gemini is not on PATH — install it or fix the command
 ✓ ollama     Ollama at http://127.0.0.1:11434, using qwen3:latest
 ```
 
-Nothing to configure to get here — the four agents above are built in, and anything not
-installed is simply reported, never silently broken.
+Using these tools removes the key, not the quota: each one still spends its own plan's
+limits.
 
-## The control panel: no terminal needed
+## Tools your AI app gets
 
-```bash
-mcpbridge ui          # or, on Windows, double-click start-ui.cmd in the repository
+| Tool | What it does |
+|---|---|
+| `list_agents` | which agents exist, whether each is ready, what each may do, and whether your computer is online |
+| `ask_agent` | give one agent a task, wait, get the answer |
+| `start_task` | the same, but returns an id at once, for work longer than the app will wait |
+| `get_task` | check on a started task: queued, running (with the output so far), or finished |
+
+The agent you delegate to starts fresh. It cannot see your chat, so the calling AI writes a
+complete task and passes `workingDirectory` when it is about code.
+
+Every answer says honestly how it went:
+
+- **`succeeded`** is true only if the agent actually did the work, not just because its
+  program exited normally.
+- **`status`** in `list_agents` is `ready`, `unavailable`, `quota-exhausted`,
+  `sign-in-failed` or `directory-not-trusted`, with the last error and, when the agent
+  named one, when to retry. A limit is remembered for an hour, a failed sign-in for six,
+  and any success clears it.
+- **`writesFiles`** and **`runsCommands`** say what the agent is allowed to do, so the
+  calling AI hands file-changing work only to an agent that can do it.
+- **`diagnostics`** is short and to the point. `notes` carries what you should know about a
+  success, such as tokens spent or an answer cut short.
+- On a **timeout**, whatever the agent had written so far comes back, marked incomplete.
+- **Tasks queue.** Two delegations run at once by default. The rest wait their turn, and
+  `get_task` says where they are in the queue.
+
+## Safety
+
+mcpbridge runs programs on your computer for apps on the internet, so it is careful by
+default.
+
+**Agents are read-only until you allow more.** Every agent starts unable to change files
+or run commands. In the control panel, press **Edit** (or **Customise** for a built-in)
+and tick what it may do. mcpbridge turns that into the tool's own flags:
+
+| CLI | Change files | Run commands |
+|---|---|---|
+| claude | `--permission-mode acceptEdits` | `--allowedTools Bash` |
+| codex | `--sandbox workspace-write` (one switch for both; still no network) | same |
+| grok | `--always-approve` (all or nothing) | same |
+| gemini | `--approval-mode auto_edit` | `--approval-mode yolo` |
+| agy (Antigravity) | `--mode accept-edits` | `--dangerously-skip-permissions` (allows edits too) |
+
+Allow only what you are happy for every app connected to your account to do on your
+computer. Some tools can't even read files without approval when no one is there to give
+it: Grok Build, for one, reads with shell commands. Such an agent needs **Change files**
+ticked before it can review code.
+
+**Commands come only from your configuration.** A tool call can name an agent, never a
+command. The prompt reaches the program as one argument with no shell, so `;`, `&&` and
+backticks in a prompt arrive as plain text. A test checks exactly that.
+
+**The relay holds no AI credentials.** It stores accounts, password hashes and token
+hashes, never an API key or a CLI login. Tokens are shown once. claude.ai and Claude Code
+sign in through OAuth with PKCE, and every app you allow is listed on the dashboard, where
+you can disconnect it. 2-step verification with an authenticator app is available.
+
+**Local servers stay local.** The control panel and the optional HTTP mode listen on
+127.0.0.1 only, and refuse requests from other websites.
+
+## Reference
+
+### Commands
+
+```
+mcpbridge                     MCP server over stdio (what Claude Code starts)
+mcpbridge ui [--port N]       the control panel in your browser
+mcpbridge connect             stay connected to the relay (uses the saved token,
+  [--relay URL --token T]     or pass them here)
+mcpbridge --agents            which agents are ready here
+mcpbridge --ask <agent> "…"   delegate once from the terminal, to test an agent
+mcpbridge --http [port]       one shared HTTP server on 127.0.0.1 (default 8808)
+mcpbridge --example-config    print a starter config
 ```
 
-opens a page on this computer — `http://127.0.0.1:8809` — that does what the rest of this
-README does with commands:
+### Configuration
 
-- **Add an agent from a preset** — NVIDIA (free tier at build.nvidia.com), DeepSeek, Grok
-  through the Grok Build CLI or the xAI API, OpenRouter, Groq, Mistral, Ollama, or any
-  OpenAI-compatible endpoint or command-line agent. Paste the key, press **List models** to
-  see what it can reach, pick one, save. To keep several of a provider's models, tick them
-  under **Add several models at once**: each becomes its own agent on the same key, named
-  after its model (`nvidia-deepseek-v4-1-flash`, `nvidia-gemma-4-31b-it`), and saving over
-  a name already in use asks first.
-- **Test** any agent with a one-word prompt and see the answer or the exact error.
-- **Connect to the relay**: paste the agent token once; the page keeps this machine
-  online while it is open, comes back online by itself the next time you open it, and
-  pushes a newly added agent to the relay straight away.
-
-Keys and the agent token are saved in `secrets.json` next to `config.json`, never in
-`config.json` itself and never sent to the relay. Every `mcpbridge` command reads them,
-so a key saved here also works for `--ask`, and a bare `mcpbridge connect` uses the saved
-relay settings. A variable exported in the shell still wins over a saved key.
-
-The page answers only on 127.0.0.1 and only to the browser that opened the link printed
-in the terminal: that link carries a key made for this launch, swapped for an HttpOnly
-cookie on first load, and requests with another Host or Origin are refused, so a web page
-elsewhere cannot drive it through your browser.
-
-## Adding or fixing an agent
-
-Write `~/.config/mcpbridge/config.json` (or point `MCPBRIDGE_CONFIG` elsewhere). Entries
-replace the built-in one of the same name outright.
+Everything the control panel does is saved in `~/.config/mcpbridge/config.json` (set
+`MCPBRIDGE_CONFIG` to use another file). You can also write it by hand. An entry replaces the
+built-in agent of the same name.
 
 ```json
 {
   "maxConcurrent": 2,
   "agents": {
-    "gemini": {
-      "command": ["gemini", "--prompt", "{prompt}"],
-      "timeoutMs": 300000
+    "codex": {
+      "command": ["codex", "exec", "--skip-git-repo-check", "{prompt}"],
+      "allow": { "edits": true, "commands": true },
+      "timeoutMs": 600000
     },
-    "big-context": {
-      "command": ["some-cli", "--read-stdin"],
-      "promptVia": "stdin",
-      "env": { "SOME_CLI_QUIET": "1" }
+    "deepseek": {
+      "type": "openai",
+      "baseUrl": "https://api.deepseek.com/v1",
+      "model": "<a model id: List models in the control panel shows them>",
+      "apiKeyEnv": "DEEPSEEK_API_KEY"
     },
-    "local": {
-      "type": "ollama",
-      "model": "qwen3:latest",
-      "description": "Local model for anything that should not leave this machine"
-    }
+    "local": { "type": "ollama", "model": "qwen3:latest" }
   }
 }
 ```
 
-**`promptVia`** decides how the prompt reaches the agent. The default, `"argv"`, is subject
-to the operating system's argument-size limit, which varies a lot — roughly 128KB per
-argument on Linux, about 1MB on macOS, and as little as 32KB on Windows. A prompt carrying
-file contents passes the lower ones easily, and past the limit the spawn fails outright.
-`"stdin"` has no such limit and is right for any CLI that reads its prompt from a pipe. The
-built-in `claude` agent uses it for that reason. If you do hit the limit, the error names
-this setting instead of leaving you with an errno.
+| Field | Meaning |
+|---|---|
+| `command` | the program and its arguments. `{prompt}` is replaced by the task, as one argument |
+| `promptVia` | `"argv"` (default) or `"stdin"`. Use stdin for long prompts: Windows limits an argument to about 32 KB |
+| `allow` | `{ "edits": true, "commands": true, "trustDirectory": true }`, the same switches as the control panel |
+| `capabilities` | for a CLI mcpbridge doesn't know: declare `{ "writesFiles": true, "runsCommands": true }` yourself |
+| `env` | extra environment variables for that agent |
+| `timeoutMs` | how long one call may run (default 5 minutes) |
+| `type: "openai"` | any service with `POST /v1/chat/completions`: `baseUrl`, `model`, `apiKeyEnv` |
+| `type: "ollama"` | a local Ollama model: `model`, optional `baseUrl` |
+| `maxConcurrent` | how many delegations run at once (default 2) |
 
-**`maxConcurrent`** caps how many delegations run at once (default 2). Each one is a whole
-model doing real work, so an unbounded number saturates the machine and spends the quota of
-whatever account is behind it.
+`apiKeyEnv` is the **name** of an environment variable, not the key, so a config file can be
+shared without leaking anything. Keys saved in the control panel go to `secrets.json` and are
+loaded into that variable. A variable you export yourself still wins.
 
-Terminal escape codes are stripped from every answer, and agents run with `NO_COLOR=1`, so
-colour and spinners do not end up in the calling model's context as if they were content.
+### Troubleshooting
 
-Each tool's non-interactive flags change between releases, so if a built-in default does
-not match your version, override it here — `--agents` will confirm.
+| You see | What to do |
+|---|---|
+| Panel or dashboard says **offline** | Start `mcpbridge ui` (or `mcpbridge connect`) and keep its window open |
+| `sign-in-failed`, *"session expired"* | Run that tool once in a terminal and sign in again |
+| `quota-exhausted` | The tool's plan hit its limit. Wait for `retryAt`, or use another agent |
+| Agent times out, or says it *needs permission* | It stopped at an approval prompt. Allow edits or commands for it, or ask only for a reading |
+| Gemini CLI: `IneligibleTierError` | Google withdrew Gemini CLI for personal accounts. Use the built-in `antigravity` agent, same models, same login |
+| `directory-not-trusted` | Tick *Trust the working directory* for that agent, if you trust the folders your apps send it |
+| Codex: *not a git repository* | Point it at a git repository, or add `--skip-git-repo-check` to its command |
+| Claude Code doesn't see the tools | Add it with `-s user`, then restart Claude Code. Check with `claude mcp list` |
 
-## Why the command lives in configuration
+**Windows:** npm-installed CLIs are `.cmd` files, which Node can't run without a shell, and a
+prompt must never go through a shell. mcpbridge reads the `.cmd` file and runs the real
+program it points to, so `claude`, `codex` and the rest work as they are.
 
-This program runs other programs. If a tool call could choose the command, a prompt
-injected into the calling model would be remote code execution.
+### Run your own relay
 
-So commands come **only** from configuration. A call names an agent, that name is looked up
-in the configured set, and the prompt fills a `{prompt}` placeholder that reaches `spawn`
-as a single argument with **no shell involved**. A prompt full of `;` and backticks arrives
-as text; there is a test that asserts exactly that, and that nothing in it executes.
-
-## stdio or HTTP
-
-stdio is the default and what you want: the client starts the bridge itself, so there is no
-port, no daemon and no listening socket at all.
-
-For one shared instance instead:
-
-```bash
-npx mcpbridge --http 8808        # http://127.0.0.1:8808/mcp
-```
-
-That mode binds loopback only, and rejects requests whose `Host` header is not
-`127.0.0.1`/`localhost` — otherwise a web page you visit could make your browser POST to
-the port and run `ask_agent` on your machine. Loopback binding alone does not stop that.
-
-## Installing
-
-Needs Node 22 or newer (`node --version`).
-
-```bash
-git clone https://github.com/szeeshan896/mcpbridge.git
-cd mcpbridge
-npm install                 # builds dist/ via the prepare script
-node dist/index.js --agents # see which agents are usable here
-```
-
-`--agents` says an agent can be *started*, not that its account works — a signed-out CLI
-or a withdrawn subscription still lists as available and fails when asked. Checking
-properly would mean spending a real call on every listing. So check an agent really
-answers before wiring anything up — the built-in commands are each
-tool's documented non-interactive mode, but those flags do change between releases:
-
-```bash
-node dist/index.js --ask claude "reply with exactly: OK"
-```
-
-Then point your client at it, with an absolute path — the client runs it from whatever
-directory it likes, so a relative one will not resolve:
-
-```bash
-claude mcp add -s user mcpbridge -- node "$(pwd)/dist/index.js"
-claude mcp list             # should say Connected
-```
-
-`-s user` matters: without it the server is registered for that one project, and a session
-started anywhere else connects to nothing — the model then sees no tools, and will reach
-for the agent's CLI directly if it happens to be on PATH, which looks like it worked while
-going nowhere near this bridge.
-
-Once published, that collapses to `npm i -g mcpbridge` and
-`claude mcp add mcpbridge -- mcpbridge`, with no build step at all: the published package
-carries a prebuilt `dist/`.
-
-`npm i -g github:szeeshan896/mcpbridge` does **not** work, and the reason is worth knowing:
-installing from a git URL means building from source, a global install does not install
-devDependencies, and without `@types/node` and `typescript` the build fails with
-`TS2688: Cannot find type definition file for 'node'`. Installing from git into a project
-(`npm i github:szeeshan896/mcpbridge`) does work, because that path does install them.
-Publishing removes the question entirely.
-
-## From anywhere: the hosted relay
-
-Everything above runs where the client runs. That rules out claude.ai in a browser or on a
-phone, because Anthropic's servers call connectors from the cloud and cannot reach a
-laptop's localhost. The answer is not to host the bridge — a server has no `claude.exe`
-signed in as you, and holding users' sessions would be both a liability and against every
-provider's terms — but to host a **relay** that only forwards, while the CLIs keep running
-where they are signed in.
-
-```
- claude.ai · phone · Desktop · Cursor ──HTTPS──►  relay  ──WebSocket──►  your laptop
-                                                 (public URL,            mcpbridge connect
-                                                  no AI credentials)     claude · codex · agy
-```
-
-On your machine:
-
-```bash
-npx -y mcpbridge connect --relay https://bridge.yourdomain.com --token mba_…
-```
-
-It opens an outbound connection — nothing listens, no firewall rule — and answers the
-calls the relay forwards with exactly the same code the local server runs. Close the lid
-and the dashboard shows *offline*; that is the point, not a limitation: it is why the
-server needs no keys.
-
-The relay itself lives in [`relay/`](relay/README.md): accounts (email or phone, password or
-Google), 2-step verification with an authenticator app, two tokens per account stored as
-hashes, a dashboard that generates the exact lines to paste into each client, and a
-`Dockerfile` that deploys to Fly, Railway or any VPS. claude.ai — web, desktop app and
-phone — connects to it as a custom connector through OAuth: you enter the relay's URL,
-sign in, click *Allow*, and nothing is pasted anywhere. Claude Code signs in the same way;
-clients that take a fixed header (Claude Desktop via `mcp-remote`, Cursor) use a client
-token from the dashboard instead.
-
-## Reaching a model that has no CLI
-
-Some providers publish no command-line tool at all. xAI is one: there is no official Grok
-CLI, so the xAI API is the only route, and that means a key. The same shape reaches most
-providers that are not Anthropic or Google, because they all speak
-`POST /v1/chat/completions` — DeepSeek, Mistral, Groq, Together, OpenRouter, LM Studio,
-llama.cpp and vLLM included. One adapter, differing only in base URL, model and key.
-
-```json
-{
-  "agents": {
-    "grok": {
-      "type": "openai",
-      "baseUrl": "https://api.x.ai/v1",
-      "model": "<a model id from xAI's docs>",
-      "apiKeyEnv": "XAI_API_KEY"
-    },
-    "openrouter": {
-      "type": "openai",
-      "baseUrl": "https://openrouter.ai/api/v1",
-      "model": "<a model id>",
-      "apiKeyEnv": "OPENROUTER_API_KEY"
-    }
-  }
-}
-```
-
-**`apiKeyEnv` names an environment variable; it is not the key.** Config files get copied
-into repositories and pasted into issues, and a key in one is a key leaked. An inline
-`apiKey` works but is the worse habit. The key never appears in a result, a note or an
-error — there is a test asserting exactly that.
-
-Leave `model` out until you know it: with the key exported, `mcpbridge --agents` lists the
-ids that endpoint offers, where the provider exposes a listing.
-
-**Keys stay entirely optional.** An agent without one reports `available: false` exactly
-like a CLI that is not installed, so a setup of only CLIs and Ollama needs no key anywhere.
-Add one only where a provider leaves no other door.
-
-Because these agents are HTTP, they report `readsFiles: false` and say what they spent:
-`notes` carries the token usage, since unlike a subscription CLI these calls are billed per
-call.
-
-```bash
-mcpbridge --example-config > ~/.config/mcpbridge/config.json
-```
-
-## When an agent will not authenticate
-
-`--ask` separates "the command is wrong" from "the account is not usable", which look the
-same from inside a client. Three real cases:
-
-**A subscription CLI whose session has lapsed** reports it plainly, e.g. `Failed to
-authenticate: OAuth session expired and could not be refreshed`. Run that tool
-interactively once to sign in again; nothing here needs changing.
-
-**A provider that has withdrawn a tier.** Gemini CLI now answers `IneligibleTierError:
-This client is no longer supported for Gemini Code Assist for individuals`, pointing at
-Antigravity. No flag works around that — but Antigravity ships its own CLI, `agy`, with a
-print mode, and it reaches the same models through that login. The built-in `antigravity`
-agent uses it, so this needs no key at all.
-
-Failing both, Gemini models are also reachable through Google's OpenAI-compatible endpoint
-with an AI Studio key, which this bridge speaks already:
-
-```json
-{
-  "agents": {
-    "gemini-api": {
-      "type": "openai",
-      "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
-      "model": "<a model id>",
-      "apiKeyEnv": "GEMINI_API_KEY"
-    }
-  }
-}
-```
-
-**A CLI that refuses to act without a person present** — see **Running agents
-unattended** below.
-
-## Running agents unattended
-
-Every one of these tools has a guard that assumes a person is sitting there to answer it.
-Delegation has nobody, so each guard turns into a failure:
-
-| Agent | What it refuses | What lifts it |
-|---|---|---|
-| `codex` | a directory that is not a git repository | `--skip-git-repo-check` |
-| `antigravity` | acting without approval for each tool call | `--dangerously-skip-permissions` |
-| `gemini` | a workspace it has not been told to trust | `GEMINI_CLI_TRUST_WORKSPACE=true` |
-
-None of them are set for you, and that is the point: each gives up a check on whatever
-directory a caller names — code written without a way to undo it, files edited and
-commands run with nobody asked. Worth having, worth choosing deliberately.
-
-```json
-{
-  "agents": {
-    "codex": { "command": ["codex", "exec", "--skip-git-repo-check", "{prompt}"] },
-    "antigravity": { "command": ["agy", "-p", "--dangerously-skip-permissions", "{prompt}"] },
-    "gemini": { "command": ["gemini", "-p", "{prompt}"],
-                "env": { "GEMINI_CLI_TRUST_WORKSPACE": "true" } }
-  }
-}
-```
-
-A delegation that only asks a question needs none of this. Point an agent at a git
-repository and `codex` is content; ask it to read rather than write and `agy` has nothing
-to request approval for.
-
-## On Windows
-
-Every npm-installed CLI appears as a `.cmd` shim, which Node cannot spawn without a shell
-— and a prompt must never go through a shell. Rather than refusing every agent on the
-platform, the shim is **read** and the program it would have run is spawned directly:
-
-```
-claude  ->  C:\Users\you\AppData\Roaming\npm\claude.cmd        (the shim, never run)
-        ->  ...\node_modules\@anthropic-ai\claude-code\bin\claude.exe   (run instead)
-```
-
-Reading a shim is safe where running it is not: nothing from the prompt reaches the file.
-Both shapes npm writes are handled — a native binary, and a script invoked through node,
-which is run with the same node that is running the bridge rather than whichever one is
-first on `PATH`. A shim whose target cannot be read or found falls back to being refused
-with the path to set by hand, so an unrecognised one never produces a wrong command.
-
-## What it will not do
-
-- **Long tasks hit a timeout.** `ask_agent` is synchronous and the client has its own
-  request deadline. Split big jobs, or use `start_task` and poll `get_task`.
-- **Each call starts fresh.** The delegated agent remembers nothing between calls.
-- **It is local only.** It drives CLIs signed in on this machine and reads this machine's
-  files, so there is nothing to host and nothing to deploy.
+mcpbridge.app is one instance of the relay in [`relay/`](relay/README.md). You can host your
+own: it is one Docker image with a SQLite database, and deploys to Railway, Fly.io or any
+VPS. Accounts use email or phone, a password or Google, with optional 2-step verification.
 
 ## Development
 
 ```bash
-npm install
-npm test          # typecheck + 108 tests
-npm run build
-npm start         # stdio, from source
+git clone https://github.com/szeeshan896/mcpbridge.git
+cd mcpbridge
+npm install       # also builds dist/
+npm test          # typecheck and tests
+npm start         # the stdio server, from source
+cd relay && npm install && npm test
 ```
 
-| | |
-|---|---|
-| Runtime | Node 22+ |
-| SDK | `@modelcontextprotocol/sdk` 1.32.2 |
-| Package size | ~16 KB |
-
 ```
-src/agents/   cli.ts (spawns a command), shim.ts (what a Windows .cmd really runs),
-              ollama.ts (local model),
-              openai.ts (any OpenAI-compatible API), broken.ts (a config that did not
-              load, so one typo costs that agent and not the bridge), registry.ts
-test/fixtures/agent.mjs  a Node stand-in for an agent CLI, so the suite runs on Windows
-src/config.ts built-in defaults and the config file
-src/tasks.ts  background tasks behind start_task / get_task
-src/limit.ts  the concurrency cap both paths queue through
-src/server.ts the four tools
-src/index.ts  entry point and transport choice
-src/connect.ts the outbound connection to a relay; src/protocol.ts its wire format
-src/tools.ts  the four tools as plain functions, shared by the server and the relay path
-relay/        the hosted relay: accounts, tokens, 2FA, dashboard, MCP forwarding
+src/agents/    running each kind of agent: cli.ts, openai.ts, ollama.ts; judging an
+               answer (outcome.ts); remembered failures (health.ts); permission flags
+               (permissions.ts); Windows .cmd shims (shim.ts)
+src/ui/        the control panel
+src/connect.ts the outbound connection to a relay; src/protocol.ts its messages
+src/tools.ts   the four tools, shared by the local server and the relay path
+src/tasks.ts   background tasks and their queue
+relay/         the hosted relay: accounts, OAuth, tokens, 2FA, dashboard, forwarding
+test/fixtures/ a stand-in agent CLI, so the suite runs on Windows, macOS and Linux
 ```
 
-A Java and Spring Boot implementation came first and is preserved in this repository's
-history at commit `498634f`; it was ported here so the tool installs with one `npx`
-command and no JRE.
+## License
 
-## Roadmap
-
-- [x] one-call delegation, Ollama agent, async tasks, allowlisted commands
-- [ ] follow-up calls that reuse an agent's session instead of starting fresh
-- [ ] streaming progress while a long delegation runs
+[MIT](LICENSE) © Syed Zeeshan Ali

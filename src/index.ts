@@ -41,7 +41,7 @@ const USAGE = `mcpbridge - delegate work to another AI agent over MCP
 
 Register it with a client once, e.g.
 
-  claude mcp add mcpbridge -- npx -y mcpbridge
+  claude mcp add -s user mcpbridge -- npx -y @mcpbridge/cli
 
 Agents come from ${configPath()} when it exists, otherwise from built-in defaults.
 `;
@@ -168,7 +168,7 @@ async function main(): Promise<void> {
   if (leftover.length > 0) {
     console.error(`mcpbridge: unknown command or option: ${leftover.join(' ')}`);
     console.error('Run `mcpbridge --help` for the commands this version has. An older checkout may');
-    console.error('not have them yet: update it (git pull, then npm install) or use npx -y mcpbridge.');
+    console.error('not have them yet: update it (git pull, then npm install) or use npx -y @mcpbridge/cli.');
     process.exitCode = 2;
     return;
   }
