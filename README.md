@@ -1,6 +1,6 @@
 <div align="center">
 
-# mcpbridge
+# mcpbridgeapp
 
 **Let any AI app hand work to the AI tools on your own computer.**
 
@@ -12,17 +12,17 @@
 
 </div>
 
-<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/how-it-works.png" alt="AI apps such as claude.ai, ChatGPT and Claude Code send a task to the mcpbridge.app relay, which forwards it to your computer, where mcpbridge runs Claude Code, Codex, Grok, Antigravity, DeepSeek, NVIDIA or Ollama and sends the answer back" width="100%">
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/how-it-works.png" alt="AI apps such as claude.ai, ChatGPT and Claude Code send a task to the mcpbridge.app relay, which forwards it to your computer, where mcpbridgeapp runs Claude Code, Codex, Grok, Antigravity, DeepSeek, NVIDIA or Ollama and sends the answer back" width="100%">
 
 You are chatting with Claude on your phone. Your laptop at home has Codex, Claude Code and
-Grok signed in, each on a plan you already pay for. With mcpbridge you can say:
+Grok signed in, each on a plan you already pay for. With mcpbridgeapp you can say:
 
-> Ask codex through mcpbridge to review `payment.ts` in my shop project.
+> Ask codex through mcpbridgeapp to review `payment.ts` in my shop project.
 
 Claude passes the task to your laptop. Codex runs there, reads the real files, and its
 review comes back into the same chat. **One message, work done.**
 
-- **Use the plans you already pay for.** mcpbridge runs the AI command-line tools that are
+- **Use the plans you already pay for.** mcpbridgeapp runs the AI command-line tools that are
   signed in on your computer. No new subscription and no API key needed for them.
 - **No keys on any server.** Logins and API keys stay on your computer. The relay only
   passes messages along, so a breach there leaks no AI credentials.
@@ -53,28 +53,28 @@ tools are installed. Check with `node --version`.
    **Save & connect**. The panel turns **Online**. Keep that window open (you can minimise
    it); while it runs, your agents are reachable.
 3. **Add the connector in claude.ai.** Open **Customize → Connectors → Add custom
-   connector**, name it `mcpbridge`, and use `https://mcpbridge.app/mcp` as the URL. Press
+   connector**, name it `mcpbridgeapp`, and use `https://mcpbridge.app/mcp` as the URL. Press
    **Connect**, sign in, and press **Allow**. Nothing to paste. The same connector then
    works in the Claude desktop app and on your phone.
-4. **Ask.** In any chat, switch the mcpbridge connector on (**+ → Connectors**) and say
-   *"list my mcpbridge agents"*, then *"ask codex to …"*.
+4. **Ask.** In any chat, switch the mcpbridgeapp connector on (**+ → Connectors**) and say
+   *"list my mcpbridgeapp agents"*, then *"ask codex to …"*.
 
 The dashboard shows the exact setup lines for Claude Code, Claude Desktop and Cursor, with
 your own address filled in.
 
 ### B. Only Claude Code, on the same computer
 
-You don't need an account or the relay. Claude Code starts mcpbridge itself:
+You don't need an account or the relay. Claude Code starts mcpbridgeapp itself:
 
 ```bash
 # macOS / Linux
-claude mcp add -s user mcpbridge -- npx -y @mcpbridgeapp/cli
+claude mcp add -s user mcpbridgeapp -- npx -y @mcpbridgeapp/cli
 
 # Windows (PowerShell or cmd)
-claude mcp add -s user mcpbridge -- cmd /c npx -y @mcpbridgeapp/cli
+claude mcp add -s user mcpbridgeapp -- cmd /c npx -y @mcpbridgeapp/cli
 ```
 
-Then, in Claude Code: *"ask gemini through mcpbridge to review the caching layer in this
+Then, in Claude Code: *"ask gemini through mcpbridgeapp to review the caching layer in this
 module"*. `-s user` makes it available in every folder, not just the current one.
 
 ### Install it for good (optional)
@@ -83,24 +83,24 @@ module"*. `-s user` makes it available in every folder, not just the current one
 
 ```bash
 npm install -g @mcpbridgeapp/cli
-mcpbridge ui              # the control panel
-mcpbridge --agents        # which agents are ready on this computer
+mcpbridgeapp ui              # the control panel
+mcpbridgeapp --agents        # which agents are ready on this computer
 ```
 
 ## How it works
 
-<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/flow.png" alt="Sequence: claude.ai calls ask_agent on the relay; the relay forwards it to mcpbridge on your computer; mcpbridge runs codex in your folder; the answer is checked and returned the same way" width="100%">
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/flow.png" alt="Sequence: claude.ai calls ask_agent on the relay; the relay forwards it to mcpbridgeapp on your computer; mcpbridgeapp runs codex in your folder; the answer is checked and returned the same way" width="100%">
 
-1. Your AI app calls mcpbridge's `ask_agent` tool. It names an agent (say `codex`), writes a
+1. Your AI app calls mcpbridgeapp's `ask_agent` tool. It names an agent (say `codex`), writes a
    self-contained task, and can pass a folder on your computer.
 2. The relay at mcpbridge.app forwards the call over a WebSocket that **your computer**
    opened. Nothing on your computer listens for connections, so no ports to open and no
    firewall rules.
-3. mcpbridge looks the agent up in **your** configuration and runs it, e.g.
+3. mcpbridgeapp looks the agent up in **your** configuration and runs it, e.g.
    `codex exec "<task>"` in that folder. The task is passed as a single argument with no
    shell involved, so text in a prompt can never become a command.
 4. The agent works the way it always does, signed in as you.
-5. mcpbridge **checks the answer** before calling it a success. An agent that exits normally
+5. mcpbridgeapp **checks the answer** before calling it a success. An agent that exits normally
    but only says *"I couldn't read the files"*, or stops after *"I'll start by reading
    payment.ts"*, comes back as a failure that says why. A usage limit or an expired
    sign-in is remembered, so the next call is told straight away instead of waiting.
@@ -112,10 +112,10 @@ limitation: the work happens where your logins are, which is why the server need
 ## The control panel
 
 ```bash
-npx -y @mcpbridgeapp/cli ui        # or: mcpbridge ui
+npx -y @mcpbridgeapp/cli ui        # or: mcpbridgeapp ui
 ```
 
-<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/control-panel.png" alt="The mcpbridge control panel: relay connection Online as my-laptop, and a list of agents (antigravity, claude, codex, deepseek, gemini, grok, an NVIDIA model, ollama), each ready, with Test, Edit and Customise buttons" width="100%">
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/control-panel.png" alt="The mcpbridgeapp control panel: relay connection Online as my-laptop, and a list of agents (antigravity, claude, codex, deepseek, gemini, grok, an NVIDIA model, ollama), each ready, with Test, Edit and Customise buttons" width="100%">
 
 A page on your own computer (`http://127.0.0.1:8809`) that does everything this README does
 with commands:
@@ -132,7 +132,7 @@ with commands:
 - **Allow edits or commands** per agent (see [Safety](#safety)).
 
 **On Windows**, if you cloned the repository, double-click `start-ui.cmd`. Put a shortcut to
-it on your desktop to start mcpbridge with one click.
+it on your desktop to start mcpbridgeapp with one click.
 
 Keys and the agent token are saved in `~/.config/mcpbridge/secrets.json` on your computer.
 They are never written to `config.json` and never sent to the relay. The page answers only on
@@ -206,12 +206,12 @@ Every answer says honestly how it went:
 
 ## Safety
 
-mcpbridge runs programs on your computer for apps on the internet, so it is careful by
+mcpbridgeapp runs programs on your computer for apps on the internet, so it is careful by
 default.
 
 **Agents are read-only until you allow more.** Every agent starts unable to change files
 or run commands. In the control panel, press **Edit** (or **Customise** for a built-in)
-and tick what it may do. mcpbridge turns that into the tool's own flags:
+and tick what it may do. mcpbridgeapp turns that into the tool's own flags:
 
 | CLI | Change files | Run commands |
 |---|---|---|
@@ -243,14 +243,14 @@ you can disconnect it. 2-step verification with an authenticator app is availabl
 ### Commands
 
 ```
-mcpbridge                     MCP server over stdio (what Claude Code starts)
-mcpbridge ui [--port N]       the control panel in your browser
-mcpbridge connect             stay connected to the relay (uses the saved token,
-  [--relay URL --token T]     or pass them here)
-mcpbridge --agents            which agents are ready here
-mcpbridge --ask <agent> "…"   delegate once from the terminal, to test an agent
-mcpbridge --http [port]       one shared HTTP server on 127.0.0.1 (default 8808)
-mcpbridge --example-config    print a starter config
+mcpbridgeapp                     MCP server over stdio (what Claude Code starts)
+mcpbridgeapp ui [--port N]       the control panel in your browser
+mcpbridgeapp connect             stay connected to the relay (uses the saved token,
+  [--relay URL --token T]        or pass them here)
+mcpbridgeapp --agents            which agents are ready here
+mcpbridgeapp --ask <agent> "…"   delegate once from the terminal, to test an agent
+mcpbridgeapp --http [port]       one shared HTTP server on 127.0.0.1 (default 8808)
+mcpbridgeapp --example-config    print a starter config
 ```
 
 ### Configuration
@@ -284,7 +284,7 @@ built-in agent of the same name.
 | `command` | the program and its arguments. `{prompt}` is replaced by the task, as one argument |
 | `promptVia` | `"argv"` (default) or `"stdin"`. Use stdin for long prompts: Windows limits an argument to about 32 KB |
 | `allow` | `{ "edits": true, "commands": true, "trustDirectory": true }`, the same switches as the control panel |
-| `capabilities` | for a CLI mcpbridge doesn't know: declare `{ "writesFiles": true, "runsCommands": true }` yourself |
+| `capabilities` | for a CLI mcpbridgeapp doesn't know: declare `{ "writesFiles": true, "runsCommands": true }` yourself |
 | `env` | extra environment variables for that agent |
 | `timeoutMs` | how long one call may run (default 5 minutes) |
 | `type: "openai"` | any service with `POST /v1/chat/completions`: `baseUrl`, `model`, `apiKeyEnv` |
@@ -299,7 +299,7 @@ loaded into that variable. A variable you export yourself still wins.
 
 | You see | What to do |
 |---|---|
-| Panel or dashboard says **offline** | Start `mcpbridge ui` (or `mcpbridge connect`) and keep its window open |
+| Panel or dashboard says **offline** | Start `mcpbridgeapp ui` (or `mcpbridgeapp connect`) and keep its window open |
 | `sign-in-failed`, *"session expired"* | Run that tool once in a terminal and sign in again |
 | `quota-exhausted` | The tool's plan hit its limit. Wait for `retryAt`, or use another agent |
 | Agent times out, or says it *needs permission* | It stopped at an approval prompt. Allow edits or commands for it, or ask only for a reading |
@@ -309,7 +309,7 @@ loaded into that variable. A variable you export yourself still wins.
 | Claude Code doesn't see the tools | Add it with `-s user`, then restart Claude Code. Check with `claude mcp list` |
 
 **Windows:** npm-installed CLIs are `.cmd` files, which Node can't run without a shell, and a
-prompt must never go through a shell. mcpbridge reads the `.cmd` file and runs the real
+prompt must never go through a shell. mcpbridgeapp reads the `.cmd` file and runs the real
 program it points to, so `claude`, `codex` and the rest work as they are.
 
 ### Run your own relay

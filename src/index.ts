@@ -21,27 +21,27 @@ function flag(argv: string[], name: string): string | undefined {
   return index === -1 ? undefined : argv[index + 1];
 }
 
-const USAGE = `mcpbridge - delegate work to another AI agent over MCP
+const USAGE = `mcpbridgeapp - delegate work to another AI agent over MCP
 
-  mcpbridge                  run as an MCP server over stdio (default)
-  mcpbridge --http [port]    run as an HTTP server on 127.0.0.1 (default port 8808)
-  mcpbridge --agents         print the configured agents and whether each is usable
-  mcpbridge --ask <agent> <prompt>
-                             delegate once from the terminal, to check an agent works
-                             before wiring it into a client
-  mcpbridge --example-config print a starter config; JSON on stdout, notes on stderr
-  mcpbridge ui [--port N] [--no-open]
-                             open a control panel on this computer: add agents and
-                             their keys, test them, connect to the relay, all without
-                             a terminal
-  mcpbridge connect --relay <url> --token <token> [--device <name>]
-                             keep this machine connected to a hosted relay, so clients
-                             anywhere can delegate to the CLIs signed in here
-  mcpbridge --help
+  mcpbridgeapp                   run as an MCP server over stdio (default)
+  mcpbridgeapp --http [port]     run as an HTTP server on 127.0.0.1 (default port 8808)
+  mcpbridgeapp --agents          print the configured agents and whether each is usable
+  mcpbridgeapp --ask <agent> <prompt>
+                                 delegate once from the terminal, to check an agent works
+                                 before wiring it into a client
+  mcpbridgeapp --example-config  print a starter config; JSON on stdout, notes on stderr
+  mcpbridgeapp ui [--port N] [--no-open]
+                                 open a control panel on this computer: add agents and
+                                 their keys, test them, connect to the relay, all without
+                                 a terminal
+  mcpbridgeapp connect --relay <url> --token <token> [--device <name>]
+                                 keep this machine connected to a hosted relay, so clients
+                                 anywhere can delegate to the CLIs signed in here
+  mcpbridgeapp --help
 
 Register it with a client once, e.g.
 
-  claude mcp add -s user mcpbridge -- npx -y @mcpbridgeapp/cli
+  claude mcp add -s user mcpbridgeapp -- npx -y @mcpbridgeapp/cli
 
 Agents come from ${configPath()} when it exists, otherwise from built-in defaults.
 `;
@@ -58,7 +58,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  // keys and the relay token saved from `mcpbridge ui` work in every command and window
+  // keys and the relay token saved from `mcpbridgeapp ui` work in every command and window
   let secrets: Secrets = { keys: {} };
   try {
     secrets = loadSecrets();
@@ -76,7 +76,7 @@ async function main(): Promise<void> {
       return;
     }
     const ui = await startUi({ port, agentVersion: VERSION });
-    console.error(`mcpbridge control panel: ${ui.url}`);
+    console.error(`mcpbridgeapp control panel: ${ui.url}`);
     console.error('Keep this window open while you use it; Ctrl+C stops the page and the relay connection.');
     if (!argv.includes('--no-open')) openInBrowser(ui.url);
     const stop = () => void ui.close().then(() => process.exit(0));
@@ -112,7 +112,7 @@ async function main(): Promise<void> {
     const name = argv[askIndex + 1];
     const prompt = argv.slice(askIndex + 2).join(' ');
     if (!name || !prompt) {
-      console.error('usage: mcpbridge --ask <agent> <prompt>');
+      console.error('usage: mcpbridgeapp --ask <agent> <prompt>');
       process.exitCode = 1;
       return;
     }
@@ -136,20 +136,20 @@ async function main(): Promise<void> {
   }
 
   if (argv[0] === 'connect') {
-    // flags, then the environment, then what `mcpbridge ui` saved
+    // flags, then the environment, then what `mcpbridgeapp ui` saved
     const relay = flag(argv, '--relay') ?? process.env['MCPBRIDGE_RELAY'] ?? secrets.relay?.url;
     const token = flag(argv, '--token') ?? process.env['MCPBRIDGE_TOKEN'] ?? secrets.relay?.token;
     const device = flag(argv, '--device') ?? process.env['MCPBRIDGE_DEVICE'] ?? secrets.relay?.device;
     if (!relay || !token) {
-      console.error('usage: mcpbridge connect --relay <url> --token <token> [--device <name>]');
-      console.error('       (or set MCPBRIDGE_RELAY and MCPBRIDGE_TOKEN, or save them once in `mcpbridge ui`)');
+      console.error('usage: mcpbridgeapp connect --relay <url> --token <token> [--device <name>]');
+      console.error('       (or set MCPBRIDGE_RELAY and MCPBRIDGE_TOKEN, or save them once in `mcpbridgeapp ui`)');
       process.exitCode = 1;
       return;
     }
     const controller = new AbortController();
     process.on('SIGINT', () => controller.abort());
     process.on('SIGTERM', () => controller.abort());
-    console.error(`mcpbridge connecting to ${relay}, agents from ${source}`);
+    console.error(`mcpbridgeapp connecting to ${relay}, agents from ${source}`);
     await connectToRelay({
       relayUrl: relay,
       token,
@@ -166,8 +166,8 @@ async function main(): Promise<void> {
   // Falling through to the stdio server would look like it worked while doing nothing asked.
   const leftover = httpIndex === -1 ? argv : argv.filter((_, i) => i !== httpIndex && i !== httpIndex + 1);
   if (leftover.length > 0) {
-    console.error(`mcpbridge: unknown command or option: ${leftover.join(' ')}`);
-    console.error('Run `mcpbridge --help` for the commands this version has. An older checkout may');
+    console.error(`mcpbridgeapp: unknown command or option: ${leftover.join(' ')}`);
+    console.error('Run `mcpbridgeapp --help` for the commands this version has. An older checkout may');
     console.error('not have them yet: update it (git pull, then npm install) or use npx -y @mcpbridgeapp/cli.');
     process.exitCode = 2;
     return;
@@ -175,7 +175,7 @@ async function main(): Promise<void> {
   if (httpIndex === -1) {
     // stdio: the transport owns stdout, so every diagnostic must go to stderr or it
     // corrupts the protocol stream
-    console.error(`mcpbridge on stdio, agents from ${source}`);
+    console.error(`mcpbridgeapp on stdio, agents from ${source}`);
     await createServer(registry, tasks, limit).connect(new StdioServerTransport());
     return;
   }
@@ -214,12 +214,12 @@ async function main(): Promise<void> {
   // Loopback only: reaching this server means running the configured commands, so a
   // socket on 0.0.0.0 would hand that to the whole network.
   http.listen(port, '127.0.0.1', () => {
-    console.error(`mcpbridge on http://127.0.0.1:${port}/mcp, agents from ${source}`);
+    console.error(`mcpbridgeapp on http://127.0.0.1:${port}/mcp, agents from ${source}`);
   });
 }
 
 /**
- * JSON on stdout, guidance on stderr, so `mcpbridge --example-config > config.json` writes
+ * JSON on stdout, guidance on stderr, so `mcpbridgeapp --example-config > config.json` writes
  * a usable file while the person still sees what to fill in.
  */
 function printExampleConfig(): void {
@@ -255,7 +255,7 @@ function printExampleConfig(): void {
       'key in this file, which is easy to copy into a repo or an issue by accident.',
       '',
       'The "openai" agents have no model set, so they report unavailable until you add one.',
-      'With the key exported, `mcpbridge --agents` lists the ids that endpoint offers, where',
+      'With the key exported, `mcpbridgeapp --agents` lists the ids that endpoint offers, where',
       'the provider exposes a listing; otherwise take one from its documentation.',
       '',
     ].join('\n'),
@@ -281,6 +281,6 @@ function openInBrowser(url: string): void {
 }
 
 main().catch((error: unknown) => {
-  console.error(`mcpbridge failed to start: ${(error as Error).message}`);
+  console.error(`mcpbridgeapp failed to start: ${(error as Error).message}`);
   process.exitCode = 1;
 });

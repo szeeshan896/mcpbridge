@@ -6,7 +6,7 @@ import type { ConcurrencyLimit } from './limit.js';
 import type { TaskStore } from './tasks.js';
 import { executeTool, type ToolContext } from './tools.js';
 
-const PACKAGE_NAME = 'mcpbridge';
+const PACKAGE_NAME = 'mcpbridgeapp';
 const PACKAGE_VERSION = '0.1.0';
 
 function json(value: unknown) {

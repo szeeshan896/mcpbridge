@@ -109,7 +109,7 @@ test('with no device connected, every tool explains how to connect one', async (
 
   const listed = await mcp.call<{ offline: boolean; diagnostics: string }>('list_agents', {});
   assert.equal(listed.offline, true);
-  assert.match(listed.diagnostics, /mcpbridge connect/);
+  assert.match(listed.diagnostics, /mcpbridgeapp connect/);
 
   const asked = await mcp.call<{ succeeded: boolean; offline: boolean; diagnostics: string }>('ask_agent', { agent: 'echoer', prompt: 'hi' });
   assert.equal(asked.succeeded, false);

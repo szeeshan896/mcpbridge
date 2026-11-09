@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * The wire protocol between a local agent (`mcpbridge connect`, running where the AI CLIs
+ * The wire protocol between a local agent (`mcpbridgeapp connect`, running where the AI CLIs
  * are signed in) and a relay (the hosted endpoint clients talk to). JSON messages over a
  * WebSocket the agent opens outbound, so nothing on the user's machine listens.
  *

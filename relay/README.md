@@ -1,8 +1,8 @@
-# mcpbridge relay
+# mcpbridgeapp relay
 
-The hosted half of mcpbridge. Clients anywhere — claude.ai, Claude Desktop, Cursor, Claude
+The hosted half of mcpbridgeapp. Clients anywhere — claude.ai, Claude Desktop, Cursor, Claude
 Code — talk MCP to this over HTTPS; it forwards each delegation to the account owner's own
-machine over the WebSocket that machine opened with `mcpbridge connect`, and the CLI there
+machine over the WebSocket that machine opened with `mcpbridgeapp connect`, and the CLI there
 does the work.
 
 **The relay never holds an AI credential.** It sees prompts and answers in transit and
@@ -17,7 +17,7 @@ sessions.
         bridge.yourdomain.com  (this)
                  │  WebSocket the laptop opened, agent token
                  ▼
-        the user's laptop: mcpbridge connect
+        the user's laptop: mcpbridgeapp connect
                  ├─ claude.exe   (signed in)
                  ├─ codex.exe    (signed in)
                  └─ agy.exe      (signed in)
@@ -138,7 +138,7 @@ is available in the desktop app and on the phone once signed in to the same clau
 account. The dashboard's *Connected apps* table lists every such sign-in and can
 disconnect any of them, which invalidates its tokens at once.
 
-Claude Code: `claude mcp add -s user --transport http mcpbridge https://<your relay>/mcp`,
+Claude Code: `claude mcp add -s user --transport http mcpbridgeapp https://<your relay>/mcp`,
 then `/mcp` inside Claude Code to sign in. It catches the redirect on a loopback port,
 which the relay allows for a registered loopback address on any port, as Claude Code's
 published client metadata requires.
@@ -195,7 +195,7 @@ refresh rather than re-prompt.
 cd relay && npm test
 ```
 
-The suite runs the real `mcpbridge connect` code from the CLI package against the real
+The suite runs the real `mcpbridgeapp connect` code from the CLI package against the real
 relay with a real MCP client, so a delegation is exercised client → relay → agent → CLI
 and back, alongside the account, token, 2FA and Google flows. The OAuth tests drive the
 MCP SDK's own client through discovery, registration, consent, the code exchange, a

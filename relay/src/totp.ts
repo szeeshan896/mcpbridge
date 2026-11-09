@@ -81,7 +81,7 @@ export function verifyTotp(secretBase32: string, code: string, nowMs = Date.now(
   return null;
 }
 
-export function otpauthUri(secretBase32: string, account: string, issuer = 'mcpbridge'): string {
+export function otpauthUri(secretBase32: string, account: string, issuer = 'mcpbridgeapp'): string {
   const label = encodeURIComponent(`${issuer}:${account}`);
   const params = new URLSearchParams({
     secret: secretBase32, issuer, algorithm: 'SHA1', digits: String(TOTP_DIGITS), period: String(TOTP_STEP_SECONDS),

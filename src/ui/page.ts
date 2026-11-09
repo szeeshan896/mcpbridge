@@ -10,13 +10,13 @@ export function uiPage(): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>mcpbridge · this computer</title>
+<title>mcpbridgeapp · this computer</title>
 <style>${STYLE}</style>
 </head>
 <body>
 <main>
   <header>
-    <div><h1>mcpbridge</h1><div class="sub">on this computer · <span id="configFile"></span></div></div>
+    <div><h1>mcpbridgeapp</h1><div class="sub">on this computer · <span id="configFile"></span></div></div>
     <button class="ghost" id="refresh" type="button">Refresh</button>
   </header>
   <div id="configError" class="banner bad" hidden></div>

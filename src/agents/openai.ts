@@ -92,7 +92,7 @@ export class OpenAiAgent implements Agent {
     if (!key) return failed(this.name, this.missingKeyDetail(), Date.now() - started);
     if (!this.config.model) {
       return failed(this.name,
-        `no model set for "${this.name}". Add "model" to its config; run \`mcpbridge --agents\` to ` +
+        `no model set for "${this.name}". Add "model" to its config; run \`mcpbridgeapp --agents\` to ` +
         `see what this endpoint offers.`, Date.now() - started);
     }
 

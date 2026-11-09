@@ -22,7 +22,7 @@ export class DeviceOfflineError extends Error {
   constructor() {
     super(
       'no device is connected for this account. On the machine where your AI CLIs are signed ' +
-        'in, run: mcpbridge connect --relay <this relay> --token <your agent token>',
+        'in, run: mcpbridgeapp connect --relay <this relay> --token <your agent token>',
     );
     this.name = 'DeviceOfflineError';
   }

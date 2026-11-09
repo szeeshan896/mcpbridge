@@ -174,7 +174,7 @@ async function main(): Promise<void> {
     );
   }
   const bound = await relay.listen(port, host);
-  console.error(`mcpbridge relay on http://${host}:${bound.port}${publicUrl ? ` (public: ${publicUrl})` : ''}`);
+  console.error(`mcpbridgeapp relay on http://${host}:${bound.port}${publicUrl ? ` (public: ${publicUrl})` : ''}`);
 
   const shutdown = () => void relay.close().then(() => process.exit(0));
   process.on('SIGINT', shutdown);

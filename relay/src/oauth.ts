@@ -50,7 +50,7 @@ export function protectedResourceMetadata(base: string) {
     authorization_servers: [base],
     bearer_methods_supported: ['header'],
     scopes_supported: ['mcp'],
-    resource_name: 'mcpbridge',
+    resource_name: 'mcpbridgeapp',
     resource_documentation: `${base}/`,
   };
 }
@@ -398,7 +398,7 @@ function consentPage(username: string, client: ResolvedClient, redirectUri: stri
     ? `<p class="warn">This client receives its code on <b>${esc(target.host)}</b> — a program on your own computer. Only approve if you just started that connection yourself: any local program could claim that address.</p>`
     : `<p class="muted">After you approve, you go back to <b>${esc(target.host)}</b>.</p>`;
   return page('Approve a connection', `
-<h1>Allow <b>${esc(client.name)}</b> to use your mcpbridge?</h1>
+<h1>Allow <b>${esc(client.name)}</b> to use your mcpbridgeapp?</h1>
 <p class="sub">Signed in as ${esc(username)}</p>
 <div class="panel">
   <p>It will be able to, as you:</p>
@@ -435,7 +435,7 @@ async function token(req: IncomingMessage, res: ServerResponse, ctx: ApiContext,
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Pragma', 'no-cache');
   const fail = (status: number, error: string, description: string) => {
-    if (error === 'invalid_client') res.setHeader('WWW-Authenticate', 'Basic realm="mcpbridge"');
+    if (error === 'invalid_client') res.setHeader('WWW-Authenticate', 'Basic realm="mcpbridgeapp"');
     sendJson(res, status, { error, error_description: description });
   };
 

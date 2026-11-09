@@ -46,7 +46,7 @@ type ConnectionState =
   | { state: 'reconnecting'; reason: string };
 
 /**
- * The local control panel: everything `mcpbridge` asks of a terminal -- adding an agent,
+ * The local control panel: everything `mcpbridgeapp` asks of a terminal -- adding an agent,
  * saving its key, checking it answers, keeping this machine connected to the relay --
  * done from a page on this machine.
  *
@@ -388,7 +388,7 @@ export async function startUi(options: UiOptions): Promise<UiServer> {
       }
       if (!same(cookieFrom(req), key)) {
         res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' })
-          .end('open the link that `mcpbridge ui` printed in the terminal; it carries this launch\'s key');
+          .end('open the link that `mcpbridgeapp ui` printed in the terminal; it carries this launch\'s key');
         return;
       }
       const html = uiPage();

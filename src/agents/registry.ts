@@ -187,7 +187,7 @@ function judge(agent: Agent, result: AgentResult): AgentResult {
       ...result,
       diagnostics:
         `${result.diagnostics}\n\nThis CLI refuses directories it has not been told to trust when it runs ` +
-        'unattended. mcpbridge does not trust them on its behalf, because the directory is chosen by ' +
+        'unattended. mcpbridgeapp does not trust them on its behalf, because the directory is chosen by ' +
         'whichever client made the call. If you trust the projects your clients send it to, set the ' +
         'variable the CLI names under this agent\'s "env" in config.json, e.g. ' +
         '"env": { "GEMINI_CLI_TRUST_WORKSPACE": "true" } for gemini.',

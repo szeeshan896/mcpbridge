@@ -27,7 +27,7 @@
   "homepage": "https://mcpbridge.app",
   "type": "module",
   "bin": {
-    "mcpbridge": "dist/index.js"
+    "mcpbridgeapp": "dist/index.js"
   },
   "files": [
     "dist",

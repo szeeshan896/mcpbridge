@@ -158,7 +158,7 @@ function wire(form, path, after){form.addEventListener('submit',async e=>{e.prev
 `;
 
 export function page(title: string, body: string, script = ''): string {
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · mcpbridge</title><style>${STYLE}</style></head><body><main>${body}</main><script>${SCRIPT}${script}</script></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)} · mcpbridgeapp</title><style>${STYLE}</style></head><body><main>${body}</main><script>${SCRIPT}${script}</script></body></html>`;
 }
 
 function landingPage(googleEnabled: boolean, next: string | null): string {
@@ -166,7 +166,7 @@ function landingPage(googleEnabled: boolean, next: string | null): string {
   const google = googleEnabled ? `<a class="google" href="${esc(googleHref)}">Continue with Google</a>` : '';
   const notice = next ? `<div class="panel"><b>A client is waiting to connect.</b> Sign in and you will be asked whether to allow it.</div>` : '';
   return page('Sign in', `
-<h1>mcpbridge</h1>
+<h1>mcpbridgeapp</h1>
 <p class="sub">Delegate work between your AI agents from anywhere — the work runs on your own machine, where they are signed in.</p>${notice}
 <div class="row">
   <div class="panel"><h2 style="margin-top:0">Sign in</h2>
@@ -209,7 +209,7 @@ const STATUS_LABEL: Record<string, string> = {
 /**
  * One agent, as a table row on a wide screen and a card on a phone (the "stack" table
  * becomes blocks under 640px). The newer fields -- status, what it may do, its limit --
- * are shown when the connected machine's mcpbridge reports them; an older one does not.
+ * are shown when the connected machine's mcpbridgeapp reports them; an older one does not.
  */
 function agentRow(a: Summary['device'] extends infer D ? D extends { agents: (infer A)[] } ? A : never : never): string {
   const label = a.available ? 'available' : (a.status && STATUS_LABEL[a.status]) || 'unavailable';
@@ -261,24 +261,24 @@ function dashboardPage(me: Summary, base: string, googleEnabled: boolean): strin
 <p class="muted">No token to paste: claude.ai signs in here and asks you to allow it.</p>
 <ol>
   <li>In claude.ai open <b>Customize → Connectors</b> and click <b>Add custom connector</b>.</li>
-  <li>Name it <b>mcpbridge</b>, and for the MCP server URL enter <code>${esc(host)}/mcp</code>. Leave the OAuth client fields empty (or choose <i>Use Claude's published identity</i> / <i>Register automatically</i> if asked).</li>
+  <li>Name it <b>mcpbridgeapp</b>, and for the MCP server URL enter <code>${esc(host)}/mcp</code>. Leave the OAuth client fields empty (or choose <i>Use Claude's published identity</i> / <i>Register automatically</i> if asked).</li>
   <li>Click <b>Add</b>, then <b>Connect</b>. You land back here, signed in, with an <i>Allow</i> button.</li>
-  <li>In any chat open the <b>+</b> menu → <b>Connectors</b> and switch mcpbridge on. The same connector works in the Claude desktop app and on the phone once you are signed in there.</li>
+  <li>In any chat open the <b>+</b> menu → <b>Connectors</b> and switch mcpbridgeapp on. The same connector works in the Claude desktop app and on the phone once you are signed in there.</li>
 </ol>
 <div class="panel"><h2 style="margin-top:0">Connected apps</h2>${connectedApps(me)}</div>
 <h2>Connect your clients</h2>
 <p class="muted">Claude Code — from any folder, then run <code>/mcp</code> inside Claude Code to sign in:</p>
-<pre>claude mcp add -s user --transport http mcpbridge ${esc(host)}/mcp</pre>
+<pre>claude mcp add -s user --transport http mcpbridgeapp ${esc(host)}/mcp</pre>
 <p class="muted">Or with a client token instead of signing in:</p>
-<pre>claude mcp add -s user --transport http mcpbridge ${esc(host)}/mcp --header "Authorization: Bearer <span data-fill="client">&lt;client token&gt;</span>"</pre>
+<pre>claude mcp add -s user --transport http mcpbridgeapp ${esc(host)}/mcp --header "Authorization: Bearer <span data-fill="client">&lt;client token&gt;</span>"</pre>
 <p class="muted">Claude Desktop — add to <code>claude_desktop_config.json</code>:</p>
-<pre>{ "mcpServers": { "mcpbridge": { "command": "npx", "args": ["-y", "mcp-remote", "${esc(host)}/mcp", "--header", "Authorization: Bearer <span data-fill="client">&lt;client token&gt;</span>"] } } }</pre>
+<pre>{ "mcpServers": { "mcpbridgeapp": { "command": "npx", "args": ["-y", "mcp-remote", "${esc(host)}/mcp", "--header", "Authorization: Bearer <span data-fill="client">&lt;client token&gt;</span>"] } } }</pre>
 <p class="muted">Cursor — <code>.cursor/mcp.json</code>:</p>
-<pre>{ "mcpServers": { "mcpbridge": { "url": "${esc(host)}/mcp", "headers": { "Authorization": "Bearer <span data-fill="client">&lt;client token&gt;</span>" } } } }</pre>
+<pre>{ "mcpServers": { "mcpbridgeapp": { "url": "${esc(host)}/mcp", "headers": { "Authorization": "Bearer <span data-fill="client">&lt;client token&gt;</span>" } } } }</pre>
 `;
 
   return page('Dashboard', `
-<h1>mcpbridge</h1><div class="sub">${esc(me.username)}${me.googleLinked ? ' · Google linked' : ''}${googleEnabled && !me.googleLinked ? ' · <a href="/auth/google">link Google</a>' : ''} · <form method="post" action="/logout" style="display:inline"><button class="secondary" style="margin:0;padding:2px 8px">Sign out</button></form></div>
+<h1>mcpbridgeapp</h1><div class="sub">${esc(me.username)}${me.googleLinked ? ' · Google linked' : ''}${googleEnabled && !me.googleLinked ? ' · <a href="/auth/google">link Google</a>' : ''} · <form method="post" action="/logout" style="display:inline"><button class="secondary" style="margin:0;padding:2px 8px">Sign out</button></form></div>
 <div class="panel"><h2 style="margin-top:0">Your machine</h2>${device}</div>
 <div class="row">${tokenRow('agent', 'Agent token', 'Lets a machine serve your account. Keep it on that machine only.')}${tokenRow('client', 'Client token', 'Lets a client delegate as you. Put it in Claude Code, Desktop or Cursor.')}</div>
 <div class="panel"><h2 style="margin-top:0">2-step verification</h2>${twoFactor}</div>

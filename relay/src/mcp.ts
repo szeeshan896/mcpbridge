@@ -82,13 +82,13 @@ function forward(hub: DeviceHub, userId: string, tool: string, args: Record<stri
 
 function buildServer(userId: string, hub: DeviceHub): McpServer {
   const server = new McpServer(
-    { name: 'mcpbridge-relay', version: '0.1.0' },
+    { name: 'mcpbridgeapp-relay', version: '0.1.0' },
     {
       instructions:
         'MCP Bridge relays work to AI agents installed on the account owner\'s own machine, ' +
         'where those agents are signed in. Call list_agents first — it also says whether that ' +
         'machine is connected right now; if "offline" is true, nothing can be delegated until ' +
-        'the owner runs `mcpbridge connect` there. Then ask_agent to delegate and get the answer ' +
+        'the owner runs `mcpbridgeapp connect` there. Then ask_agent to delegate and get the answer ' +
         'in one call. The agent cannot see this conversation, so write a self-contained prompt, ' +
         'and pass workingDirectory for anything about files on that machine. Agents are read-only ' +
         'unless list_agents says otherwise ("writesFiles", "runsCommands"): shape the task to what ' +

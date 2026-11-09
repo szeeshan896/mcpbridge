@@ -38,9 +38,9 @@ test('tolerates a code typed with a space', () => {
 
 test('builds an otpauth URI an authenticator app will scan', () => {
   const uri = otpauthUri('JBSWY3DPEHPK3PXP', 'zee@example.com');
-  assert.ok(uri.startsWith('otpauth://totp/mcpbridge%3Azee%40example.com?'));
+  assert.ok(uri.startsWith('otpauth://totp/mcpbridgeapp%3Azee%40example.com?'));
   assert.match(uri, /secret=JBSWY3DPEHPK3PXP/);
-  assert.match(uri, /issuer=mcpbridge/);
+  assert.match(uri, /issuer=mcpbridgeapp&/);
 });
 
 test('recovery codes are distinct and normalise however they are typed', () => {
