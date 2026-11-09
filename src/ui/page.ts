@@ -423,5 +423,7 @@ $('connectBtn').addEventListener('click', async () => { $('relayErr').textConten
 $('disconnectBtn').addEventListener('click', async () => { try { await api('/api/relay/disconnect', {}); await load(); } catch (e) { $('relayErr').textContent = e.message; } });
 
 load();
-setInterval(() => { if (!document.hidden && !document.activeElement?.closest('form')) load(); }, 4000);
+// skipped only while a field is being typed in, which a refresh would overwrite: focus left
+// on a form's button after Save & connect used to hold the status at "Connecting…"
+setInterval(() => { if (!document.hidden && !document.activeElement?.matches('form input, form select, form textarea')) load(); }, 4000);
 `;
