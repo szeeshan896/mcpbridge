@@ -1,11 +1,13 @@
 name: Publish to npm
 
-# Push a tag such as v0.2.0 (matching package.json's version) to publish that version.
+# Push a tag such as v0.2.0 (matching package.json's version) to publish that version, or
+# run it from the Actions tab to publish the version package.json names on main.
 # No token: npm trusts this workflow through its Trusted Publisher setting, and records
 # where the package was built (provenance) on its own.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -23,6 +25,7 @@ jobs:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - name: Tag matches package.json
+        if: github.ref_type == 'tag'
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
       - run: npm ci
       - run: npm publish
