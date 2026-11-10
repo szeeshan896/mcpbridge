@@ -5,14 +5,14 @@
 **Let any AI app hand work to the AI tools on your own computer.**
 
 [![npm](https://img.shields.io/npm/v/@mcpbridgeapp/cli?color=4f6bed)](https://www.npmjs.com/package/@mcpbridgeapp/cli)
-[![CI](https://github.com/szeeshan896/mcpbridge/actions/workflows/ci.yml/badge.svg)](https://github.com/szeeshan896/mcpbridge/actions/workflows/ci.yml)
+[![CI](https://github.com/szeeshan896/mcpbridgeapp/actions/workflows/ci.yml/badge.svg)](https://github.com/szeeshan896/mcpbridgeapp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 [Quick start](#quick-start) · [How it works](#how-it-works) · [Control panel](#the-control-panel) · [Agents](#agents-you-can-use) · [Safety](#safety) · [Reference](#reference)
 
 </div>
 
-<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/how-it-works.png" alt="AI apps such as claude.ai, ChatGPT and Claude Code send a task to the mcpbridge.app relay, which forwards it to your computer, where mcpbridgeapp runs Claude Code, Codex, Grok, Antigravity, DeepSeek, NVIDIA or Ollama and sends the answer back" width="100%">
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridgeapp/main/docs/images/how-it-works.png" alt="AI apps such as claude.ai, ChatGPT and Claude Code send a task to the mcpbridge.app relay, which forwards it to your computer, where mcpbridgeapp runs Claude Code, Codex, Grok, Antigravity, DeepSeek, NVIDIA or Ollama and sends the answer back" width="100%">
 
 You are chatting with Claude on your phone. Your laptop at home has Codex, Claude Code and
 Grok signed in, each on a plan you already pay for. With mcpbridgeapp you can say:
@@ -89,7 +89,7 @@ mcpbridgeapp --agents        # which agents are ready on this computer
 
 ## How it works
 
-<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/flow.png" alt="Sequence: claude.ai calls ask_agent on the relay; the relay forwards it to mcpbridgeapp on your computer; mcpbridgeapp runs codex in your folder; the answer is checked and returned the same way" width="100%">
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridgeapp/main/docs/images/flow.png" alt="Sequence: claude.ai calls ask_agent on the relay; the relay forwards it to mcpbridgeapp on your computer; mcpbridgeapp runs codex in your folder; the answer is checked and returned the same way" width="100%">
 
 1. Your AI app calls mcpbridgeapp's `ask_agent` tool. It names an agent (say `codex`), writes a
    self-contained task, and can pass a folder on your computer.
@@ -115,7 +115,7 @@ limitation: the work happens where your logins are, which is why the server need
 npx -y @mcpbridgeapp/cli ui        # or: mcpbridgeapp ui
 ```
 
-<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/control-panel.png" alt="The mcpbridgeapp control panel: relay connection Online as my-laptop, and a list of agents (antigravity, claude, codex, deepseek, gemini, grok, an NVIDIA model, ollama), each ready, with Test, Edit and Customise buttons" width="100%">
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridgeapp/main/docs/images/control-panel.png" alt="The mcpbridgeapp control panel: relay connection Online as my-laptop, and a list of agents (antigravity, claude, codex, deepseek, gemini, grok, an NVIDIA model, ollama), each ready, with Test, Edit and Customise buttons" width="100%">
 
 A page on your own computer (`http://127.0.0.1:8809`) that does everything this README does
 with commands:
@@ -140,7 +140,7 @@ They are never written to `config.json` and never sent to the relay. The page an
 
 ## The dashboard
 
-<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridge/main/docs/images/dashboard.png" alt="The mcpbridge.app dashboard: your machine is Online as my-laptop, with each agent listed as available and what it may do" width="100%">
+<img src="https://raw.githubusercontent.com/szeeshan896/mcpbridgeapp/main/docs/images/dashboard.png" alt="The mcpbridge.app dashboard: your machine is Online as my-laptop, with each agent listed as available and what it may do" width="100%">
 
 [mcpbridge.app](https://mcpbridge.app) shows whether your computer is online and which agents
 it offers. It is also where you manage tokens, turn on 2-step verification, and see and
@@ -321,8 +321,8 @@ VPS. Accounts use email or phone, a password or Google, with optional 2-step ver
 ## Development
 
 ```bash
-git clone https://github.com/szeeshan896/mcpbridge.git
-cd mcpbridge
+git clone https://github.com/szeeshan896/mcpbridgeapp.git
+cd mcpbridgeapp
 npm install       # also builds dist/
 npm test          # typecheck and tests
 npm start         # the stdio server, from source

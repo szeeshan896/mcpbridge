@@ -22,7 +22,7 @@
   "author": "Syed Zeeshan Ali",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/szeeshan896/mcpbridge.git"
+    "url": "git+https://github.com/szeeshan896/mcpbridgeapp.git"
   },
   "homepage": "https://mcpbridge.app",
   "type": "module",
@@ -87,7 +87,7 @@
     }
   },
   "bugs": {
-    "url": "https://github.com/szeeshan896/mcpbridge/issues"
+    "url": "https://github.com/szeeshan896/mcpbridgeapp/issues"
   },
   "publishConfig": {
     "access": "public"
