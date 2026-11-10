@@ -1,6 +1,6 @@
 {
   "name": "@mcpbridgeapp/cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Let any AI app (claude.ai, ChatGPT, Claude Code, your phone) hand work to the AI CLIs and models on your own computer, over MCP, with no keys on any server",
   "keywords": [
     "mcp",
