@@ -1,14 +1,15 @@
 name: Publish to npm
 
 # Push a tag such as v0.2.0 (matching package.json's version) to publish that version.
-# Needs an npm automation token in the repository secret NPM_TOKEN.
+# No token: npm trusts this workflow through its Trusted Publisher setting, and records
+# where the package was built (provenance) on its own.
 on:
   push:
     tags: ['v*']
 
 permissions:
   contents: read
-  id-token: write # lets npm record where the package was built (provenance)
+  id-token: write # the short-lived identity npm checks instead of a token
 
 jobs:
   publish:
@@ -16,13 +17,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+      # trusted publishing needs npm 11.5.1 or newer, which Node 24 ships with
       - uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
       - name: Tag matches package.json
         run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
       - run: npm ci
-      - run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish
