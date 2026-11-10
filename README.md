@@ -1,6 +1,6 @@
 <div align="center">
 
-# mcpbridgeapp
+# MCP Bridge App
 
 **Let any AI app hand work to the AI tools on your own computer.**
 
